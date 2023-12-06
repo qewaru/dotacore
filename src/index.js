@@ -1,6 +1,6 @@
 import express from 'express'
 import { REST, Routes, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { getUserRaiting, getLastMatch, getHeroByAttribute, getHeroByPosition, getTopHeroes } from './requests/requestHandler.js'
+import { getLastMatch, getHeroByAttribute, getHeroByPosition, getRandomHero, getTopHeroes } from './requests/requestHandler.js'
 import { commands } from './lib/data.js'
 import { createMatchEmbed, createTopEmbed } from './utils/embeds.js'
 import 'dotenv/config'
@@ -46,19 +46,6 @@ client.on('interactionCreate', async interaction => {
       await interaction.reply('Kakoj test durik')
       break
     
-    case 'mmr': {
-      const userId = interaction.options.get('user-id')
-      const userData = await getUserRaiting(userId.value)
-      if (userData !== 0) {
-        const replyTemplate = '**' + userData.name + '**' + ' has ' + userData.mmr + ' mmr'
-        await interaction.reply(replyTemplate)
-      } else {
-        await interaction.reply('No data about user mmr :(')
-      }
-
-      break
-    }
-    
     case 'lastmatch': {
       const userId = interaction.options.get('user-id')
       const matchData = await getLastMatch(userId.value)
@@ -74,10 +61,8 @@ client.on('interactionCreate', async interaction => {
     }
 
     case 'randomdraft': {
-      const attr = interaction.options.get('attribute')
-      const position = interaction.options.get('position')
-
-      if (attr) {
+      if (interaction.options.get('attribute')) {
+        const attr = interaction.options.get('attribute')
         const hero = await getHeroByAttribute(attr.value)
         if (hero !== 0) { 
           await interaction.reply(`Random hero by attribute: **${hero}**`)
@@ -85,13 +70,17 @@ client.on('interactionCreate', async interaction => {
           await interaction.reply(`Incorrect attribute`)
         }
 
-      } else {
+      } else if (interaction.options.get('position')) {
+        const position = interaction.options.get('position')
         const hero = await getHeroByPosition(position.value)
         if (hero !== 0) {
           await interaction.reply(`Random hero by position: **${hero}**`)
         } else {
           await interaction.reply(`Incorrect position value`)
         }
+      } else {
+        const hero = await getRandomHero()
+        await interaction.reply(`Random hero: **${hero}**`)
       }
 
       break

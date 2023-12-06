@@ -30,7 +30,7 @@ export const commands = [
       {
         name: 'user-id',
         description: 'User ID',
-        type: ApplicationCommandOptionType.Number,
+        type: ApplicationCommandOptionType.String,
         required: true
       }
     ]
@@ -58,7 +58,7 @@ export const commands = [
       {
         name: 'user-id',
         description: 'User ID',
-        type: ApplicationCommandOptionType.Number,
+        type: ApplicationCommandOptionType.String,
         required: true
       }
     ]

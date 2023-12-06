@@ -51,3 +51,13 @@ export async function convertTopHeroes(json) {
     
     return returnData
 }
+
+export async function convertId(id) {
+    if (id.length > 10) {
+        const base = BigInt('76561197960265728')
+        const steam = BigInt(id)
+        id = (steam - base).toString()
+    }
+
+    return parseInt(id)
+}

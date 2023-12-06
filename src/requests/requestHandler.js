@@ -1,23 +1,11 @@
-import { convertHeroes, convertItems, convertAttribute, convertTopHeroes } from '../utils/converter.js'
+import { convertHeroes, convertItems, convertAttribute, convertTopHeroes, convertId } from '../utils/converter.js'
 import { heroPos } from '../lib/data.js'
+import { readFile } from 'fs/promises';
 
-export async function getUserRaiting(userId) {
-    try {
-      const response = await fetch(`https://api.opendota.com/api/players/${userId}`, {
-        method: 'GET'
-      })
-      const json = await response.json()
-  
-      if (json) {
-        return { mmr: json.mmr_estimate.estimate, name: json.profile.personaname } 
-      }
-    } catch (error) {
-      return 0
-    }
-  }
-  
 export async function getLastMatch(userId) {
-  const recentMatches = await fetch(`https://api.opendota.com/api/players/${userId}/recentMatches`, {
+  const id32 = await convertId(userId)  
+  
+  const recentMatches = await fetch(`https://api.opendota.com/api/players/${id32}/recentMatches`, {
     method: 'GET'
   })
   const userJson = await recentMatches.json()
@@ -35,7 +23,7 @@ export async function getLastMatch(userId) {
       durationSeconds = `0${durationSeconds}`
     }
 
-    const userData = matchJson.players.find((player) => player.account_id === userId)
+    const userData = matchJson.players.find((player) => player.account_id === id32)
     if (userData) {
       const items = await convertItems([userData.item_0, userData.item_1, userData.item_2, userData.item_3, userData.item_4, userData.item_5])
       const heroName = await convertHeroes(userData.hero_id)
@@ -94,14 +82,25 @@ export async function getHeroByPosition(pos) {
   }
 }
 
+export async function getRandomHero() {
+  const raw = await readFile('./src/lib/hero_names.json', 'utf-8')
+  const heroesJson = JSON.parse(raw)
+  const wtf = Object.values(heroesJson).map(hero => hero.id)
+  const heroId = Math.floor(Math.random() * wtf.length)
+  const heroName = await convertHeroes(heroId)
+
+  return heroName
+}
+
 export async function getTopHeroes(id) {
+  const id32 = await convertId(id)
   try {
-    const userData = await fetch(`https://api.opendota.com/api/players/${id}`, {
+    const userData = await fetch(`https://api.opendota.com/api/players/${id32}`, {
         method: 'GET'
     })
     const userJson = await userData.json()
 
-    const heroesData = await fetch(`https://api.opendota.com/api/players/${id}/heroes`, {
+    const heroesData = await fetch(`https://api.opendota.com/api/players/${id32}/heroes`, {
       method: 'GET'
     })
     const json = await heroesData.json()
