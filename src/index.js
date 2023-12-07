@@ -102,6 +102,11 @@ client.on('interactionCreate', async interaction => {
   }
 })
 
+app.get('/wakeup', (req, res) => {
+  console.log('Waking up')
+  res.send('Bot is awake')
+})
+
 // RUNNING THE BOT/SERVER
 
 client.login(`${process.env.CLIENT_TOKEN}`)
